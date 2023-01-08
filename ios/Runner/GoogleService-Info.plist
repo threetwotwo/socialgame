@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>777575333399-t9trr724uiccvuasqllaed6opngihufu.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.777575333399-t9trr724uiccvuasqllaed6opngihufu</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>777575333399-3p44o01r2jdnttnp3gufgfbg4vrvevec.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBKkvsnTVH_goh2tmfFwnGxsUG_RuH1bHs</string>
+	<key>GCM_SENDER_ID</key>
+	<string>777575333399</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>io.ocal.owogametest.socialgame</string>
+	<key>PROJECT_ID</key>
+	<string>social-game-test</string>
+	<key>STORAGE_BUCKET</key>
+	<string>social-game-test.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:777575333399:ios:a69a69e30530fc30662652</string>
+</dict>
+</plist>

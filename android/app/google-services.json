@@ -1,0 +1,134 @@
+{
+  "project_info": {
+    "project_number": "777575333399",
+    "project_id": "social-game-test",
+    "storage_bucket": "social-game-test.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:777575333399:android:0b1af3df7a2c4457662652",
+        "android_client_info": {
+          "package_name": "com.garypiong.socialgametest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "777575333399-3p44o01r2jdnttnp3gufgfbg4vrvevec.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.garypiong.socialgametest",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "777575333399-kglmksao8d5gl3qvgjd531fvbb2qdpda.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSVL8Q6SdFuHGQxwK-gsPG7pFS_rCGrhs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "777575333399-kglmksao8d5gl3qvgjd531fvbb2qdpda.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "777575333399-3204d3cjjtaskh40jop7aoek799199g8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.socialgametest"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:777575333399:android:3467a695080c90bb662652",
+        "android_client_info": {
+          "package_name": "com.mycompany.socialgametest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "777575333399-6f5303l9tb0th6ddvgeuvetrn9n2b7i3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mycompany.socialgametest",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "777575333399-kglmksao8d5gl3qvgjd531fvbb2qdpda.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSVL8Q6SdFuHGQxwK-gsPG7pFS_rCGrhs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "777575333399-kglmksao8d5gl3qvgjd531fvbb2qdpda.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "777575333399-3204d3cjjtaskh40jop7aoek799199g8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.socialgametest"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:777575333399:android:197c1a365da07b41662652",
+        "android_client_info": {
+          "package_name": "io.ocal.owogametest.socialgame"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "777575333399-kglmksao8d5gl3qvgjd531fvbb2qdpda.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSVL8Q6SdFuHGQxwK-gsPG7pFS_rCGrhs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "777575333399-kglmksao8d5gl3qvgjd531fvbb2qdpda.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "777575333399-3204d3cjjtaskh40jop7aoek799199g8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.socialgametest"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
