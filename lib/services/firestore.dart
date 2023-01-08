@@ -115,24 +115,35 @@ class FirestoreAPI {
     return batch.commit();
   }
 
+  static Future<Map<String, dynamic>> getUserInventory(String uid) {
+    return userInventoryRef(uid)
+        .get()
+        .then((snap) => snap.data() as Map<String, dynamic>);
+  }
+
   static Future<Map<String, dynamic>> getShop() {
     return shopRef().get().then((snap) => snap.data() as Map<String, dynamic>);
   }
 
+  ///1. Check if user can afford item
+  ///2. Add item to user inventory
+  ///3. Deduct coins
   static Future buyShopItem(String uid, Map<String, dynamic> item) {
-    //write to user inventory
     final data = item..addAll({'quantity': FieldValue.increment(1)});
     print('FirestoreAPI.buyShopItem ${data['name'].runtimeType}');
-    //deduct coins
-    return userInventoryRef(uid).set(
-      {
-        (data['name'].toString()): data,
-        // 'testitem': {'id': 0},
-      },
-      SetOptions(merge: true),
-    ).catchError(
-      (e) => print('FirestoreAPI.buyShopItem $e'),
-    );
+    final int cost = item['cost'] ?? 0;
+    return userInventoryRef(uid)
+        .set(
+          {
+            (data['name'].toString()): data,
+          },
+          SetOptions(merge: true),
+        )
+        .then((_) => userStatsRef(uid).set(
+            {'coins': FieldValue.increment(-cost)}, SetOptions(merge: true)))
+        .catchError(
+          (e) => print('FirestoreAPI.buyShopItem $e'),
+        );
   }
 
   static Future addCoins(
@@ -277,7 +288,6 @@ class FirestoreAPI {
 
   static Future divorce(Player user1, Player user2) {
     final batch = shared.batch();
-    final date = Timestamp.now();
     //update user1 doc
     final user1Ref = userRef(user1.uid);
     batch.update(user1Ref, {

@@ -131,16 +131,37 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             icon: const Icon(Icons.more_horiz),
                             onPressed: () async {
                               Navigator.of(context).pushNamed('/commands');
-                              // FirestoreAPI.marry(
-                              //     await AuthService.currentAppUser(), user);
                             },
                           ),
                         ),
                       if (isOwner) DigButton(user),
-                      ListTile(),
                       ListTile(
-                        title: Text('Inventory'),
+                        title: Text('Marry'),
+                        onTap: () async {
+                          final currentUser =
+                              await AuthService.currentAppUser();
+                          user.marriedTo == null
+                              ? FirestoreAPI.marry(currentUser, user)
+                              : FirestoreAPI.divorce(currentUser, user);
+                        },
                       ),
+
+                      FutureBuilder<Map<String, dynamic>>(
+                          future: FirestoreAPI.getUserInventory(uid),
+                          builder: (context, snapshot) {
+                            final data = snapshot.data ?? {};
+
+                            return Column(
+                              children: [
+                                ListTile(
+                                  title: Text('Items (${data.keys.length})'),
+                                ),
+                                ListTile(
+                                  title: Text(data.toString()),
+                                ),
+                              ],
+                            );
+                          }),
                     ],
                   ),
           ),

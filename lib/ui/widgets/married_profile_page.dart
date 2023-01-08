@@ -20,7 +20,7 @@ class _MarriedProfilePageState extends ConsumerState<MarriedProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final isOwner = widget.user.uid == FirebaseAuth.instance.currentUser?.uid;
+    // final isOwner = widget.user.uid == FirebaseAuth.instance.currentUser?.uid;
 
     final spouseAsyncValue =
         ref.watch(AuthService.appUserStreamProvider(widget.user.marriedTo!));
@@ -133,6 +133,15 @@ class _MarriedProfilePageState extends ConsumerState<MarriedProfilePage> {
                     ),
                   ),
                   DigButton(widget.user),
+                  ListTile(
+                    title: Text('Marry'),
+                    onTap: () async {
+                      final currentUser = await AuthService.currentAppUser();
+                      widget.user.marriedTo == null
+                          ? FirestoreAPI.marry(currentUser, spouse)
+                          : FirestoreAPI.divorce(currentUser, spouse);
+                    },
+                  ),
                 ],
               ],
             ),
