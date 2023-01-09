@@ -43,9 +43,6 @@ class MyApp extends StatelessWidget {
           appBarTheme: AppBarTheme(
             backgroundColor: Colors.grey[100],
             foregroundColor: Colors.black,
-            // titleTextStyle: TextStyle(
-            //   color: Colors.black,
-            // ),
           ),
           buttonTheme: const ButtonThemeData(
             buttonColor: Colors.deepPurple, //  <-- dark color
@@ -63,9 +60,6 @@ class MyApp extends StatelessWidget {
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
-          titleTextStyle: TextStyle(
-            color: Colors.white,
-          ),
         ),
         /* dark theme settings */
       ),

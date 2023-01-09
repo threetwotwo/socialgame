@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:socialgame/services/auth.dart';
 import 'package:socialgame/services/firestore.dart';
+import 'package:socialgame/ui/widgets/AppDialog.dart';
 import 'package:socialgame/ui/widgets/base_app_bar.dart';
 import 'package:socialgame/ui/widgets/dig_button.dart';
 import 'package:socialgame/ui/widgets/married_profile_page.dart';
@@ -84,8 +85,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 StatsWidget(
-                                  title: 'Friends',
-                                  subtitle: '0',
+                                  title: 'Faith',
+                                  subtitle: stats['faith'].toString(),
                                 ),
                                 StatsWidget(
                                   title: 'Coins',
@@ -115,7 +116,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     await AuthService.currentAppUser(),
                                     user,
                                     text,
-                                  );
+                                  ).catchError((e) =>
+                                      AppDialog.show(context, e.toString()));
                                 },
                               ),
                             ),

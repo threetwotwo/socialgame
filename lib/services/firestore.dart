@@ -95,14 +95,36 @@ class FirestoreAPI {
         snap.docs.map((e) => e.data() as Map<String, dynamic>).toList());
   }
 
-  static Future addPlayerCommand(Player user1, Player user2, String command) {
+  static Future addPlayerCommand(
+      Player user1, Player user2, String command) async {
     final batch = shared.batch();
 
+    ///Check if command is valid
+    final commandQuery = commandsColRef()
+        .where('query', arrayContains: command.trim().toLowerCase())
+        .limit(1);
+
+    final commandDoc = await commandQuery.get().then((value) =>
+        value.docs.isEmpty
+            ? throw Exception('Enter a valid command')
+            : value.docs.first.data() as Map<String, dynamic>);
+
+    print('FirestoreAPI.addPlayerCommand $commandDoc');
+
     final activityDocRef = feedColRef().doc();
-    // final userDocRef = userRef(user1.uid);
-    //add coins to user
-    // batch.set(userDocRef, {'coins': FieldValue.increment(coins)},
-    //     SetOptions(merge: true));
+
+    final user1StatsDocRef = userStatsRef(user1.uid);
+    final user2StatsDocRef = userStatsRef(user2.uid);
+
+    batch.set(
+        user1StatsDocRef,
+        {'faith': FieldValue.increment(commandDoc['user_1_faith'] ?? 0)},
+        SetOptions(merge: true));
+    batch.set(
+        user2StatsDocRef,
+        {'faith': FieldValue.increment(commandDoc['user_2_faith'] ?? 0)},
+        SetOptions(merge: true));
+
     //add activity to feed
     batch.set(activityDocRef, {
       'created_at': Timestamp.now(),
