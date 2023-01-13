@@ -54,7 +54,7 @@ class DigButton extends ConsumerWidget {
         );
       },
       error: (error, _) => Text(error.toString()),
-      loading: () => const CircularProgressIndicator(),
+      loading: () => const SizedBox(),
     );
   }
 }

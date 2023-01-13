@@ -7,7 +7,10 @@ import 'package:socialgame/firebase_options.dart';
 import 'package:socialgame/ui/pages/command_list_page.dart';
 import 'package:socialgame/ui/pages/home_page.dart';
 import 'package:socialgame/ui/pages/login_signup_page.dart';
+import 'package:socialgame/ui/pages/messages_page.dart';
 import 'package:socialgame/ui/pages/profile_page.dart';
+import 'package:socialgame/ui/pages/read_message_page.dart';
+import 'package:socialgame/ui/pages/search_page.dart';
 import 'package:socialgame/ui/pages/shop_page.dart';
 
 Future<void> main() async {
@@ -76,8 +79,11 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginSignupPage(),
         // When navigating to the "/second" route, build the SecondScreen widget.
         '/home': (context) => const HomePage(),
+        SearchPage.routeName: (context) => const SearchPage(),
         '/shop': (context) => const ShopPage(),
         ProfilePage.routeName: (context) => const ProfilePage(),
+        MessagesPage.routeName: (context) => const MessagesPage(),
+        ReadMessagePage.routeName: (context) => const ReadMessagePage(),
       },
     );
   }

@@ -27,6 +27,8 @@ class FirestoreAPI {
 
   static CollectionReference sessionColRef() => shared.collection('sessions');
 
+  static CollectionReference messageColRef() => shared.collection('messages');
+
   ///Document Refs
   static DocumentReference shopRef() => shared.collection('admin').doc('shop');
 
@@ -95,6 +97,29 @@ class FirestoreAPI {
         snap.docs.map((e) => e.data() as Map<String, dynamic>).toList());
   }
 
+  static Stream<List<Map<String, dynamic>>> getMessagesForRecipient(
+      String recipientId) {
+    return messageColRef()
+        .where('sender.uid', isEqualTo: recipientId)
+        .orderBy('created_at', descending: true)
+        .orderBy('seen', descending: true)
+        .snapshots()
+        .map(
+          (value) =>
+              value.docs.map((e) => e.data() as Map<String, dynamic>).toList(),
+        );
+  }
+
+  static Future sendMessage(Player sender, Player recipient, String message) {
+    return messageColRef().doc().set({
+      'created_at': Timestamp.now(),
+      'sender': sender.toMap(),
+      'recipient': recipient.toMap(),
+      'message': message,
+      'seen': false,
+    });
+  }
+
   static Future addPlayerCommand(
       Player user1, Player user2, String command) async {
     final batch = shared.batch();
@@ -128,7 +153,8 @@ class FirestoreAPI {
     //add activity to feed
     batch.set(activityDocRef, {
       'created_at': Timestamp.now(),
-      'title': '${user1.displayName} $command ${user2.displayName}',
+      'title':
+          '${user1.displayName} ${commandDoc['verb'] ?? command} ${user2.displayName}',
       'user_1': user1.uid,
       'user_2': user2.uid,
     });

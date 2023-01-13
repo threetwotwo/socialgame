@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:socialgame/services/auth.dart';
 import 'package:socialgame/services/firestore.dart';
+import 'package:socialgame/ui/pages/create_message_page.dart';
 import 'package:socialgame/ui/widgets/AppDialog.dart';
 import 'package:socialgame/ui/widgets/base_app_bar.dart';
 import 'package:socialgame/ui/widgets/dig_button.dart';
 import 'package:socialgame/ui/widgets/married_profile_page.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  final String? uid;
+  const ProfilePage({this.uid, Key? key}) : super(key: key);
   static const routeName = '/profile';
 
   @override
@@ -28,12 +30,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final arguments = ModalRoute.of(context)?.settings.arguments as Map;
-    final uid = arguments['uid'];
+    final arguments = (ModalRoute.of(context)?.settings.arguments ?? {}) as Map;
+    final uid = widget.uid ?? arguments['uid'];
+    final isOwner = uid == FirebaseAuth.instance.currentUser?.uid;
 
     final userAsyncValue = ref.watch(AuthService.appUserStreamProvider(uid));
-
-    final isOwner = uid == FirebaseAuth.instance.currentUser?.uid;
 
     return userAsyncValue.when(
       data: (user) {
@@ -118,6 +119,24 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     text,
                                   ).catchError((e) =>
                                       AppDialog.show(context, e.toString()));
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (!isOwner)
+                        ListTile(
+                          title: TextFormField(
+                            controller: textController,
+                            decoration: InputDecoration(
+                              label: const Text('Send message'),
+                              hintText: 'What do you want to write?',
+                              suffixIcon: IconButton(
+                                icon: const Icon(Icons.message_outlined),
+                                onPressed: () async {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (_) =>
+                                          CreateMessagePage(user: user)));
                                 },
                               ),
                             ),
