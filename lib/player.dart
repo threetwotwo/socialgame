@@ -36,6 +36,5 @@ class Player {
         'display_name': displayName,
         'created_at': Timestamp.fromDate(createdAt),
         'stats': stats,
-        'coins': coins,
       };
 }

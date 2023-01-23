@@ -97,6 +97,18 @@ class FirestoreAPI {
         snap.docs.map((e) => e.data() as Map<String, dynamic>).toList());
   }
 
+  static Future<bool> isFriend(String friendId) {
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+
+    final ref = shared
+        .collection('friendships')
+        .where('uids', arrayContains: currentUid)
+        .where('uids', arrayContains: friendId)
+        .limit(1);
+
+    return ref.get().then((value) => value.docs.isNotEmpty);
+  }
+
   static Stream<List<Map<String, dynamic>>> getMessagesForRecipient(
       String recipientId) {
     return messageColRef()
@@ -163,14 +175,30 @@ class FirestoreAPI {
     return batch.commit();
   }
 
-  static Future<Map<String, dynamic>> getUserInventory(String uid) {
+  static Stream<Map<String, dynamic>> getUserInventory(String uid) {
     return userInventoryRef(uid)
-        .get()
-        .then((snap) => snap.data() as Map<String, dynamic>);
+        .snapshots()
+        .map((snap) => snap.data() as Map<String, dynamic>);
   }
 
   static Future<Map<String, dynamic>> getShop() {
     return shopRef().get().then((snap) => snap.data() as Map<String, dynamic>);
+  }
+
+  static void useItem(Map<String, dynamic> item) {
+    final int quantity = item['quantity'] ?? 0;
+
+    final key = item['name'];
+
+    final ref = userInventoryRef(FirebaseAuth.instance.currentUser?.uid ?? '');
+
+    final data = item..addAll({'quantity': quantity - 1});
+
+    if (quantity <= 1) {
+      ref.update({key: FieldValue.delete()});
+    } else {
+      ref.update({key: data});
+    }
   }
 
   ///1. Check if user can afford item
@@ -231,6 +259,20 @@ class FirestoreAPI {
     return batch.commit();
   }
 
+  static Stream<Map<String, dynamic>> friendRequestStream(
+      String uid1, String uid2) {
+    // final currentUser = FirebaseAuth.instance.currentUser;
+    //
+    // if (currentUser == null) throw Exception('No current user');
+    // final uid = currentUser.uid;
+
+    final ref1 = friendRequestRef(uid1, uid2);
+
+    return ref1
+        .snapshots()
+        .map((event) => event.data() as Map<String, dynamic>);
+  }
+
   static Future addFriendRequest(Player friend) {
     final currentUser = FirebaseAuth.instance.currentUser;
 
@@ -242,7 +284,8 @@ class FirestoreAPI {
     final map = friend.toMap()..addAll({'created_at': Timestamp.now()});
 
     try {
-      return friendRequestRef(uid, friendId).set(map);
+      print('FirestoreAPI.addFriendRequest ${uid} $friendId');
+      return friendRequestRef(friendId, uid).set(map);
     } catch (e) {
       if (kDebugMode) {
         print('FirestoreAPI.addFriendRequest Error $e');
@@ -252,7 +295,36 @@ class FirestoreAPI {
     return Future(() => null);
   }
 
-  static Future addFriend(Player friend) {
+  static Stream<Map<String, dynamic>> friendStream(String friendId) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) throw Exception('No current user');
+    final uid = currentUser.uid;
+
+    final ref1 = friendRef(uid, friendId);
+
+    return ref1
+        .snapshots()
+        .map((event) => event.data() as Map<String, dynamic>);
+  }
+
+  static Future removeFriend(String friendId) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) throw Exception('No current user');
+    final uid = currentUser.uid;
+
+    final batch = shared.batch();
+    final ref1 = friendRef(uid, friendId);
+    final ref2 = friendRef(friendId, uid);
+
+    batch.delete(ref1);
+    batch.delete(ref2);
+
+    return batch.commit();
+  }
+
+  static Future addFriend(Player friend, bool accepted) {
     final currentUser = FirebaseAuth.instance.currentUser;
 
     if (currentUser == null) throw Exception('No current user');
@@ -271,8 +343,9 @@ class FirestoreAPI {
         final ref2 = friendRef(friendId, uid);
         print('FirestoreAPI.addFriend ref1 : ${ref1.path}');
         print('FirestoreAPI.addFriend ref2 : ${ref2.path}');
-        transaction.set(ref1, friend.toMap());
-        return transaction.set(ref2, currentPlayer.toMap());
+        transaction.set(ref1, friend.toMap()..addAll({'accepted': accepted}));
+        return transaction.set(
+            ref2, currentPlayer.toMap()..addAll({'accepted': accepted}));
       } catch (e) {
         if (kDebugMode) {
           print(e);

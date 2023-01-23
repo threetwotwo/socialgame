@@ -20,6 +20,7 @@ class ReadMessagePage extends StatelessWidget {
         title: 'Message',
       ),
       body: Column(
+        // crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ListTile(
             title: Text('Dear ${recipient['display_name'] ?? ''},'),
@@ -33,7 +34,7 @@ class ReadMessagePage extends StatelessWidget {
                 // textInputAction: TextInputAction.done,
                 args['message'],
                 maxLines: 88,
-
+                textAlign: TextAlign.start,
                 // decoration: const InputDecoration(
                 //   hintText: 'What do you want to write?',
                 // ),
