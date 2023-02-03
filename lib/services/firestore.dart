@@ -273,6 +273,25 @@ class FirestoreAPI {
         .map((event) => event.data() as Map<String, dynamic>);
   }
 
+  static Future removeFriendRequest(Player friend) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) throw Exception('No current user');
+
+    final uid = currentUser.uid;
+    final friendId = friend.uid;
+
+    try {
+      return friendRequestRef(friendId, uid).delete();
+    } catch (e) {
+      if (kDebugMode) {
+        print('FirestoreAPI.addFriendRequest Error $e');
+      }
+    }
+
+    return Future(() => null);
+  }
+
   static Future addFriendRequest(Player friend) {
     final currentUser = FirebaseAuth.instance.currentUser;
 
@@ -325,6 +344,7 @@ class FirestoreAPI {
   }
 
   static Future addFriend(Player friend, bool accepted) {
+    print('FirestoreAPI.addFriend');
     final currentUser = FirebaseAuth.instance.currentUser;
 
     if (currentUser == null) throw Exception('No current user');
@@ -334,18 +354,27 @@ class FirestoreAPI {
     return shared.runTransaction((transaction) async {
       try {
         ///get current user
-        final currentPlayer = await transaction.get(userRef(uid)).then(
-            (value) => Player.fromJson(value.data() as Map<String, dynamic>));
-        print('FirestoreAPI.addFriend ${currentPlayer.toMap()}');
+        final currentPlayerDoc = (await transaction.get(userRef(uid)));
+
+        final currentPlayer =
+            Player.fromJson((currentPlayerDoc).data() as Map<String, dynamic>);
 
         ///write to user's friends list
         final ref1 = friendRef(uid, friendId);
         final ref2 = friendRef(friendId, uid);
+        final ref3 = friendRequestRef(uid, friendId);
+        final ref4 = userRef(uid);
+        final ref5 = userRef(friendId);
         print('FirestoreAPI.addFriend ref1 : ${ref1.path}');
         print('FirestoreAPI.addFriend ref2 : ${ref2.path}');
+        print('FirestoreAPI.addFriend ref3 : ${ref3.path}');
         transaction.set(ref1, friend.toMap()..addAll({'accepted': accepted}));
-        return transaction.set(
+        transaction.set(
             ref2, currentPlayer.toMap()..addAll({'accepted': accepted}));
+        transaction.delete(ref3);
+        //TODO: increment friend count
+        transaction.update(ref4, {'friends': FieldValue.increment(1)});
+        transaction.update(ref5, {'friends': FieldValue.increment(1)});
       } catch (e) {
         if (kDebugMode) {
           print(e);

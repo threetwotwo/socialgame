@@ -17,6 +17,8 @@ class HomeFeed extends ConsumerWidget {
           itemBuilder: (_, i) {
             final item = items[i];
             return ListTile(
+              onTap: () =>
+                  Navigator.of(context).pushNamed('/event', arguments: item),
               title: Text(item['title']),
               // subtitle: Text(item['created_at'].toDate().toString()),
             );

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:socialgame/app.dart';
 import 'package:socialgame/firebase_options.dart';
 import 'package:socialgame/ui/pages/command_list_page.dart';
+import 'package:socialgame/ui/pages/event_detail_page.dart';
 import 'package:socialgame/ui/pages/home_page.dart';
 import 'package:socialgame/ui/pages/login_signup_page.dart';
 import 'package:socialgame/ui/pages/messages_page.dart';
@@ -76,6 +77,7 @@ class MyApp extends StatelessWidget {
         // When navigating to the "/" route, build the FirstScreen widget.
         '/': (context) => const App(),
         '/commands': (context) => const CommandListPage(),
+        EventDetailPage.routeName: (context) => const EventDetailPage(),
         '/login': (context) => const LoginSignupPage(),
         // When navigating to the "/second" route, build the SecondScreen widget.
         '/home': (context) => const HomePage(),

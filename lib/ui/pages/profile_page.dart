@@ -67,7 +67,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                   '${requestData['display_name']} wants to be friends'),
                               trailing: AppButton(
                                 title: 'Add',
-                                onTap: () {},
+                                onTap: () {
+                                  FirestoreAPI.addFriend(user, true);
+                                },
                               ),
                             ),
                           Padding(
@@ -106,8 +108,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
                                     StatsWidget(
-                                      title: 'Faith',
-                                      subtitle: stats['faith'].toString(),
+                                      title: 'Friends',
+                                      subtitle:
+                                          (stats['friends'] ?? 0).toString(),
                                     ),
                                     StatsWidget(
                                       title: 'Coins',
@@ -152,50 +155,49 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 children: [
                                   Expanded(
                                     child: StreamBuilder<Map<String, dynamic>>(
-                                        stream:
-                                            FirestoreAPI.friendStream(user.uid),
-                                        builder: (context, snapshot) {
-                                          final data = snapshot.data;
-                                          print(
-                                              '_ProfilePageState.build $data');
+                                      stream:
+                                          FirestoreAPI.friendStream(user.uid),
+                                      builder: (context, snapshot) {
+                                        final data = snapshot.data;
+                                        print('_ProfilePageState.build $data');
 
-                                          final isFriend = data != null &&
-                                              data['accepted'] == true;
+                                        final isFriend = data != null &&
+                                            data['accepted'] == true;
 
-                                          return StreamBuilder<
-                                                  Map<String, dynamic>>(
-                                              stream: FirestoreAPI
-                                                  .friendRequestStream(
-                                                user.uid,
-                                                currentUserUid,
-                                              ),
-                                              builder: (context, snapshot) {
-                                                final requestData2 =
-                                                    snapshot.data ?? {};
+                                        return StreamBuilder<
+                                            Map<String, dynamic>>(
+                                          stream:
+                                              FirestoreAPI.friendRequestStream(
+                                            user.uid,
+                                            currentUserUid,
+                                          ),
+                                          builder: (context, snapshot) {
+                                            final requestData2 =
+                                                snapshot.data ?? {};
 
-                                                final hasRequest =
-                                                    requestData2.isNotEmpty;
+                                            final hasRequest =
+                                                requestData2.isNotEmpty;
 
-                                                return AppButton(
-                                                  onTap: () {
-                                                    if (!hasRequest &&
-                                                        !isFriend) {
-                                                      FirestoreAPI
-                                                          .addFriendRequest(
-                                                              user);
-                                                    } else if (isFriend) {
-                                                      FirestoreAPI.removeFriend(
-                                                          user.uid);
-                                                    }
-                                                  },
-                                                  title: isFriend
-                                                      ? 'Following'
-                                                      : hasRequest
-                                                          ? 'Requested'
-                                                          : 'Add Friend',
-                                                );
-                                              });
-                                        }),
+                                            return AppButton(
+                                              onTap: () {
+                                                if (!hasRequest && !isFriend) {
+                                                  FirestoreAPI.addFriendRequest(
+                                                      user);
+                                                } else if (isFriend) {
+                                                  FirestoreAPI.removeFriend(
+                                                      user.uid);
+                                                }
+                                              },
+                                              title: isFriend
+                                                  ? 'Following'
+                                                  : hasRequest
+                                                      ? 'Requested'
+                                                      : 'Add Friend',
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
                                   ),
                                   SizedBox(width: 8),
                                   Expanded(
@@ -288,11 +290,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                                 ),
                                                 SizedBox(height: 8),
                                                 AppButton(
-                                                    title: 'Use',
-                                                    onTap: () {
-                                                      FirestoreAPI.useItem(
-                                                          item);
-                                                    }),
+                                                  title: 'Use',
+                                                  onTap: () {
+                                                    FirestoreAPI.useItem(item);
+                                                  },
+                                                ),
                                               ],
                                             ),
                                           );
