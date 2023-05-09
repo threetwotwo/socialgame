@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:socialgame/player.dart';
 
 class FirestoreAPI {
+  static final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+
   static final shared = FirebaseFirestore.instance;
 
   ///Collection Refs
@@ -76,6 +78,45 @@ class FirestoreAPI {
           .map((snap) => snap.data() as Map<String, dynamic>);
 
   ///Functions
+  ///
+  ///
+  static applyBuff(String uid, {required Map<String, dynamic> buff}) {
+    return userRef(uid).update(
+      {
+        'buffs': {
+          buff['type']: buff..addAll({'created_at': Timestamp.now()})
+        },
+      },
+    );
+  }
+
+  static removeBuff(String uid, {required Map<String, dynamic> buff}) {
+    return userRef(uid).update(
+      {
+        'buffs': {buff['type']: null},
+      },
+    );
+  }
+
+  static Future<List<Map<String, dynamic>>> getFriendsMap() =>
+      friendsColRef(FirebaseAuth.instance.currentUser?.uid ?? '')
+          .get()
+          .then((value) {
+        print('FirestoreAPI.getFriends ${value.docs.first.data()}');
+        return value.docs.map((e) {
+          return (e.data() as Map<String, dynamic>);
+        }).toList();
+      });
+
+  static Future<List<Player>> getFriends() =>
+      friendsColRef(FirebaseAuth.instance.currentUser?.uid ?? '')
+          .get()
+          .then((value) {
+        print('FirestoreAPI.getFriends ${value.docs.first.data()}');
+        return value.docs.map((e) {
+          return Player.fromJson(e.data() as Map<String, dynamic>);
+        }).toList();
+      });
 
   static Future<Player> getUser(String uid) => userRef(uid)
       .get()
@@ -185,14 +226,28 @@ class FirestoreAPI {
     return shopRef().get().then((snap) => snap.data() as Map<String, dynamic>);
   }
 
-  static void useItem(Map<String, dynamic> item) {
+  static Future<void> useItem(Map<String, dynamic> item) async {
     final int quantity = item['quantity'] ?? 0;
 
     final key = item['name'];
 
-    final ref = userInventoryRef(FirebaseAuth.instance.currentUser?.uid ?? '');
+    final ref = userInventoryRef(uid);
 
     final data = item..addAll({'quantity': quantity - 1});
+
+    ///get buff data from shop
+    final shopMap = await shopRef()
+        .get()
+        .then((snap) => snap.data() as Map<String, dynamic>);
+
+    final shopItem = shopMap[key];
+
+    final shopItemBuff = shopItem['buff'];
+
+    print('FirestoreAPI.useItem buff $shopItemBuff');
+
+    //apply any buffs
+    await applyBuff(uid, buff: shopItemBuff);
 
     if (quantity <= 1) {
       ref.update({key: FieldValue.delete()});
@@ -410,6 +465,9 @@ class FirestoreAPI {
     final startTime = Timestamp.now();
 
     final digRate = await getAdminDigRate();
+    //apply any buffs/multiplier
+    final buffMap = await getBuff(buffType: 'dig_boost');
+    final double buffMultiplier = (buffMap['multiplier']).toDouble();
     //get end time
     const defaultEndTime = 90;
     final int duration = digRate?['duration'] ?? defaultEndTime;
@@ -419,7 +477,9 @@ class FirestoreAPI {
     //GET COINS
     final minCoins = digRate?['min_coins'] ?? 0;
     final maxCoins = digRate?['max_coins'] ?? 0;
-    final coins = Random().nextInt(maxCoins) + minCoins;
+    //cast to int
+    final int coins =
+        ((Random().nextInt(maxCoins) + minCoins) * buffMultiplier).toInt();
 
     //get coin rate
     final data = {
@@ -434,6 +494,16 @@ class FirestoreAPI {
     };
 
     return ref.set(data, SetOptions(merge: true));
+  }
+
+  static Future<Map<String, dynamic>> getBuff(
+      {required String buffType}) async {
+    final userDoc = await (userRef(uid)
+        .get()
+        .then((value) => value.data() as Map<String, dynamic>));
+    final buffMap = userDoc['buffs'][buffType];
+    print('FirestoreAPI.getBuff $buffMap');
+    return buffMap;
   }
 
   static Future divorce(Player user1, Player user2) {
@@ -504,4 +574,6 @@ class FirestoreAPI {
       return value.data()?['max'] ?? 1;
     });
   }
+
+  static void bakeCookie() {}
 }

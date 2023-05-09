@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:socialgame/ui/pages/home_feed.dart';
 import 'package:socialgame/ui/pages/messages_page.dart';
 import 'package:socialgame/ui/pages/profile_page.dart';
+import 'package:socialgame/ui/pages/search_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -34,7 +35,7 @@ class HomePage extends StatelessWidget {
           actions: [
             IconButton(
               onPressed: () {
-                Navigator.of(context).pushNamed('/search');
+                Navigator.of(context).pushNamed(SearchPage.routeName);
               },
               icon: const Icon(Icons.people_outline_outlined),
             ),

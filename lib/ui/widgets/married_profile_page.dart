@@ -9,6 +9,7 @@ import 'package:socialgame/ui/pages/profile_page.dart';
 import 'package:socialgame/ui/widgets/app_button.dart';
 import 'package:socialgame/ui/widgets/base_app_bar.dart';
 import 'package:socialgame/ui/widgets/dig_button.dart';
+import 'package:socialgame/utils/timeago.dart';
 
 class MarriedProfilePage extends ConsumerStatefulWidget {
   final Player user;
