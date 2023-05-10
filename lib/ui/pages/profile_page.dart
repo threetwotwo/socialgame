@@ -241,7 +241,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       // ),
 
                       StreamBuilder<Map<String, dynamic>>(
-                          stream: FirestoreAPI.getUserInventory(uid),
+                          stream: FirestoreAPI.userInventoryStream(uid),
                           builder: (context, snapshot) {
                             final data = snapshot.data ?? {};
 
@@ -287,7 +287,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                               Text('$name x$quantity'),
                                               const SizedBox(height: 8),
                                               Text(
-                                                emoji,
+                                                emoji ?? '',
                                                 style: const TextStyle(
                                                     fontSize: 48),
                                               ),

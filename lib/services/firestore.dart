@@ -216,13 +216,14 @@ class FirestoreAPI {
     return batch.commit();
   }
 
-  static Stream<Map<String, dynamic>> getUserInventory(String uid) {
+  static Stream<Map<String, dynamic>> userInventoryStream(String uid) {
     return userInventoryRef(uid)
         .snapshots()
         .map((snap) => snap.data() as Map<String, dynamic>);
   }
 
   static Future<Map<String, dynamic>> getShop() {
+    print('FirestoreAPI.getShop');
     return shopRef().get().then((snap) => snap.data() as Map<String, dynamic>);
   }
 
@@ -242,12 +243,14 @@ class FirestoreAPI {
 
     final shopItem = shopMap[key];
 
-    final shopItemBuff = shopItem['buff'];
+    final shopItemBuff = shopItem?['buff'] ?? {};
 
     print('FirestoreAPI.useItem buff $shopItemBuff');
 
     //apply any buffs
-    await applyBuff(uid, buff: shopItemBuff);
+    if (shopItemBuff is Map<String, dynamic>) {
+      await applyBuff(uid, buff: shopItemBuff);
+    }
 
     if (quantity <= 1) {
       ref.update({key: FieldValue.delete()});
@@ -263,6 +266,7 @@ class FirestoreAPI {
     final data = item..addAll({'quantity': FieldValue.increment(1)});
     print('FirestoreAPI.buyShopItem ${data['name'].runtimeType}');
     final int cost = item['cost'] ?? 0;
+    //update inventory and coins
     return userInventoryRef(uid)
         .set(
           {
@@ -575,5 +579,24 @@ class FirestoreAPI {
     });
   }
 
-  static void bakeCookie() {}
+  static Future<void> bakeCookie() async {
+    //check if user has bottle
+    final inventory = await userInventoryStream(uid).first;
+    final hasBottle = inventory.containsKey('bottle');
+    print('FirestoreAPI.bakeCookie hasBottle: $hasBottle, $inventory');
+    //set timer
+
+    if (!hasBottle) return;
+
+    //get cookie data from shop
+    final Map<String, dynamic> data = (await getShop())['cookie'];
+
+    //update inventory
+    return userInventoryRef(uid).set(
+      {
+        'cookie': data..addAll({'quantity': FieldValue.increment(1)}),
+      },
+      SetOptions(merge: true),
+    );
+  }
 }
