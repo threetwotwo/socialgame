@@ -43,7 +43,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       data: (user) {
         if (user == null) return const SizedBox();
 
-        final isMarried = user.marriedTo != null;
+        // final isMarried = user.marriedTo != null;
 
         return Scaffold(
           appBar: BaseAppBar(
@@ -220,15 +220,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           ),
                         ),
                       if (isOwner) DigButton(user),
-                      if (isOwner)
-                        ListTile(
-                          title: AppButton(
-                            title: 'Bake cookie 🍪',
-                            onTap: () {
-                              FirestoreAPI.bakeCookie();
-                            },
-                          ),
-                        ),
+                      if (isOwner) BakeButton(user),
                       // ListTile(
                       //   title: const Text('Marry'),
                       //   onTap: () async {

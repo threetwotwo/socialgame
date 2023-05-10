@@ -49,12 +49,29 @@ class FirestoreAPI {
       friendRequestsColRef(uid).doc(friendId);
 
   ///Streams
+  static final bakeSessionStreamProvider =
+      StreamProvider.autoDispose.family<Map<String, dynamic>?, String>(
+    (ref, uid) => ref.watch(
+      Provider(
+        (ref) => sessionColRef()
+            .where('uids', arrayContains: uid)
+            .where('type', isEqualTo: 'bake')
+            .limit(1)
+            .snapshots()
+            .map((s) => s.docs.isEmpty
+                ? null
+                : s.docs.first.data() as Map<String, dynamic>),
+      ),
+    ),
+  );
+
   static final digSessionStreamProvider =
       StreamProvider.autoDispose.family<Map<String, dynamic>?, String>(
     (ref, uid) => ref.watch(
       Provider(
         (ref) => sessionColRef()
             .where('uids', arrayContains: uid)
+            .where('type', isEqualTo: 'dig')
             .limit(1)
             .snapshots()
             .map((s) => s.docs.isEmpty
@@ -449,6 +466,27 @@ class FirestoreAPI {
         .then((snap) => snap.docs.first.data() as Map<String, dynamic>);
   }
 
+  static Future completeBakeSession(Player user, Map<String, dynamic> session) {
+    final batch = shared.batch();
+    //add coins to user
+    final int cookies = session['cookies'] ?? 0;
+    final sessionRef = sessionColRef().doc(session['id'] ?? '');
+    // batch.update(userRef(user.uid), {'coins': FieldValue.increment(coins)});
+    //delete session
+    batch.delete(sessionRef);
+
+    // addCoins(user1: user, coins: coins);
+    final Map<String, dynamic> data = session['cookie'];
+
+    userInventoryRef(uid).set(
+      {
+        'cookie': data..addAll({'quantity': FieldValue.increment(cookies)}),
+      },
+      SetOptions(merge: true),
+    );
+    return batch.commit();
+  }
+
 //TODO: complete for spouse too
   static Future completeDigSession(Player user, Map<String, dynamic> session) {
     final batch = shared.batch();
@@ -463,12 +501,47 @@ class FirestoreAPI {
     return batch.commit();
   }
 
+  static Future createBakeSession(
+      Player user, Map<String, dynamic> cookieData) async {
+    final ref = sessionColRef().doc();
+    final startTime = Timestamp.now();
+    final bakeRate = await getAdminRate('bake');
+
+    const defaultEndTime = 90;
+
+    final int duration = bakeRate?['duration'] ?? defaultEndTime;
+    final endTime = Timestamp.fromMillisecondsSinceEpoch(
+        startTime.millisecondsSinceEpoch + 1000 * duration);
+
+    final min = bakeRate?['min'] ?? 0;
+    final max = bakeRate?['max'] ?? 0;
+
+    //cast to int
+    final int cookies = ((Random().nextInt(max) + min)).toInt();
+
+    final data = {
+      'id': ref.id,
+      'type': 'bake',
+      'created_at': startTime,
+      'end_time': endTime,
+      'user': user.toMap(),
+      'uids': [uid],
+      'cookies': cookies,
+      'cookie': cookieData,
+      'rate': bakeRate,
+    };
+
+    print('FirestoreAPI.createBakeSession ${ref.id} $data');
+    return ref.set(data, SetOptions(merge: true));
+  }
+
   //create dig session
   static Future createDigSession(Player user, List<String> uids) async {
     final ref = sessionColRef().doc();
     final startTime = Timestamp.now();
 
     final digRate = await getAdminDigRate();
+
     //apply any buffs/multiplier
     final buffMap = await getBuff(buffType: 'dig_boost');
     final double buffMultiplier = (buffMap['multiplier']).toDouble();
@@ -481,9 +554,11 @@ class FirestoreAPI {
     //GET COINS
     final minCoins = digRate?['min_coins'] ?? 0;
     final maxCoins = digRate?['max_coins'] ?? 0;
+    final multiplier = digRate?['multiplier'] ?? 1;
     //cast to int
     final int coins =
-        ((Random().nextInt(maxCoins) + minCoins) * buffMultiplier).toInt();
+        ((Random().nextInt(maxCoins) + minCoins) * buffMultiplier * multiplier)
+            .toInt();
 
     //get coin rate
     final data = {
@@ -565,6 +640,13 @@ class FirestoreAPI {
     return batch.commit();
   }
 
+  static Future<Map<String, dynamic>?> getAdminRate(String type) {
+    return shared.collection('admin').doc(type).get().then((value) {
+      print('FirestoreAPI.getAdminRate ${value.data()}');
+      return value.data();
+    });
+  }
+
   static Future<Map<String, dynamic>?> getAdminDigRate() {
     return shared.collection('admin').doc('dig').get().then((value) {
       print('FirestoreAPI.getAdminDigRate ${value.data()}');
@@ -591,12 +673,15 @@ class FirestoreAPI {
     //get cookie data from shop
     final Map<String, dynamic> data = (await getShop())['cookie'];
 
+    //create bake session
+    await createBakeSession(await getUser(uid), data);
     //update inventory
-    return userInventoryRef(uid).set(
-      {
-        'cookie': data..addAll({'quantity': FieldValue.increment(1)}),
-      },
-      SetOptions(merge: true),
-    );
+
+    // return userInventoryRef(uid).set(
+    //   {
+    //     'cookie': data..addAll({'quantity': FieldValue.increment(1)}),
+    //   },
+    //   SetOptions(merge: true),
+    // );
   }
 }
